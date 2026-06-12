@@ -81,6 +81,9 @@
   #copied { color: var(--good); font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.2s; }
   #copied.show { opacity: 1; }
   .output-card { background: var(--good-bg); border-color: #abebc6; }
+  .toggle { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 13px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .toggle input { width: 17px; height: 17px; margin-top: 1px; cursor: pointer; accent-color: var(--ice-blue); flex: 0 0 auto; }
+  .toggle .hint { font-weight: 400; }
   .empty { color: var(--muted); font-size: 14px; font-style: italic; }
   .note {
     background: var(--warn-bg);
@@ -104,7 +107,7 @@
   </header>
 
   <div class="note">
-    <strong>How to use:</strong> Paste the existing link in the box below. Each part of the link appears as an editable field with the real text (spaces, symbols, line breaks — no <code>%20</code> codes). Fix whatever you need, then copy the updated link from the bottom. The copied link may look slightly different from the original (e.g. a space shows as <code>%20</code>) — that's normal and the form reads it correctly.
+    <strong>How to use:</strong> Paste the existing link in the box below. Each part of the link appears as an editable field with the real text (spaces, symbols, line breaks — no <code>%20</code> codes). Fix whatever you need, then copy the updated link from the bottom. The copied link may look slightly different from the original (e.g. a space shows as <code>%20</code>) — that's normal and the form reads it correctly. To download a <strong>PDF</strong> instead of opening the signing form, tick the PDF-export box before copying.
   </div>
 
   <div class="card">
@@ -123,6 +126,10 @@
 
   <div class="card output-card">
     <h2>3. Copy the updated link</h2>
+    <label class="toggle">
+      <input type="checkbox" id="pdfExport">
+      <span>Export as PDF instead of opening the signing form <span class="hint">— adds <code>&amp;pdfExport=True</code> to the link</span></span>
+    </label>
     <textarea id="outputUrl" class="url" readonly placeholder="Your updated link will appear here automatically."></textarea>
     <div class="row-actions">
       <button class="primary" id="copyBtn">Copy link</button>
@@ -162,6 +169,7 @@ var paramOrder = [];          // array of param keys, in the order they appeared
 var inputUrl  = document.getElementById("inputUrl");
 var fieldsBox = document.getElementById("fields");
 var outputUrl = document.getElementById("outputUrl");
+var pdfExportBox = document.getElementById("pdfExport");
 
 // Split "key=value" pairs ourselves so we keep order and tolerate odd input.
 // decodeURIComponent turns %20 -> space, %0A -> newline, %40 -> @, etc.
@@ -195,6 +203,18 @@ function parseUrl(raw) {
     if (paramOrder.indexOf(key) === -1) paramOrder.push(key);
     values[key] = decode(val);
   });
+
+  // pdfExport is driven by the checkbox, not shown as a text field. If the
+  // pasted link already carries it, tick the box; otherwise leave it unticked.
+  var pdfFlag = false;
+  if (Object.prototype.hasOwnProperty.call(values, "pdfExport")) {
+    pdfFlag = /^(true|1|yes)$/i.test((values.pdfExport || "").trim());
+    delete values.pdfExport;
+    var pi = paramOrder.indexOf("pdfExport");
+    if (pi !== -1) paramOrder.splice(pi, 1);
+  }
+  pdfExportBox.checked = pdfFlag;
+
   return values;
 }
 
@@ -244,6 +264,9 @@ function buildOutput() {
     // valid percent-encoding the form decodes correctly.
     parts.push(el.dataset.key + "=" + encodeURIComponent(el.value));
   });
+  if (pdfExportBox.checked) {
+    parts.push("pdfExport=True");
+  }
   outputUrl.value = baseUrl + "?" + parts.join("&");
 }
 
@@ -254,6 +277,7 @@ function refresh() {
 }
 
 inputUrl.addEventListener("input", refresh);
+pdfExportBox.addEventListener("change", buildOutput);
 
 document.getElementById("loadSample").addEventListener("click", function () {
   inputUrl.value = SAMPLE;

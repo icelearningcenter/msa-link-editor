@@ -255,14 +255,23 @@ function renderFields(values) {
   });
 }
 
+// encodeURIComponent leaves "(" and ")" as literal characters. When the
+// finished link is pasted into Zoho CRM's MSA Link field, Zoho's auto-linker
+// treats a trailing ")" as punctuation outside the URL and drops it, breaking
+// the link (e.g. account_id values like "...University (OT)"). Percent-encode
+// the parentheses too — the form decodes %28/%29 back correctly.
+function encodeVal(v) {
+  return encodeURIComponent(v).replace(/\(/g, "%28").replace(/\)/g, "%29");
+}
+
 function buildOutput() {
   var editors = fieldsBox.querySelectorAll("[data-key]");
   if (editors.length === 0) { outputUrl.value = ""; return; }
   var parts = [];
   editors.forEach(function (el) {
-    // encodeURIComponent gives %20 for space, %0A for newline, %40 for @ —
+    // %20 for space, %0A for newline, %40 for @, %28/%29 for parens —
     // valid percent-encoding the form decodes correctly.
-    parts.push(el.dataset.key + "=" + encodeURIComponent(el.value));
+    parts.push(el.dataset.key + "=" + encodeVal(el.value));
   });
   if (pdfExportBox.checked) {
     parts.push("pdfExport=True");

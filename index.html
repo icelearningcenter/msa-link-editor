@@ -37,7 +37,7 @@
   }
   header h1 { margin: 0; font-size: 19px; letter-spacing: -0.01em; }
   header p { margin: 4px 0 0; color: var(--ink-soft); font-size: 13px; }
-  .wrap { max-width: 1040px; margin: 0 auto; padding: 24px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 24px; padding-top: 36px; }
   .card {
     background: var(--card);
     border: 1px solid var(--line);
@@ -111,12 +111,12 @@
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>MSA Link Editor</h1>
-    <p>Paste an MSA form link, edit any field in plain readable text, and copy the corrected link. Nothing is saved or sent anywhere — everything happens in your browser.</p>
-  </header>
+<header>
+  <h1>MSA Link Editor</h1>
+  <p>Paste an MSA form link, edit any field in plain readable text, and copy the corrected link. Nothing is saved or sent anywhere — everything happens in your browser.</p>
+</header>
 
+<div class="wrap">
   <div class="note">
     <strong>How to use:</strong> Paste the existing link in the box below. Each part of the link appears as an editable field with the real text (spaces, symbols, line breaks — no <code>%20</code> codes). Fix whatever you need, then copy the updated link from the bottom. The copied link may look slightly different from the original (e.g. a space shows as <code>%20</code>) — that's normal and the form reads it correctly. To download a <strong>PDF</strong> instead of opening the signing form, tick the PDF-export box before copying.
   </div>
